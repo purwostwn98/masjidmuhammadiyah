@@ -35,17 +35,117 @@ class MasjidModel extends Model
     //     return $query;
     // }
 
-    // public function simpan_mhs($nim, $kode_prodi, $angkatan, $nama_mhs, $email)
-    // {
-    //     $dt_simpan = [
-    //         'nim' => $nim,
-    //         'kode_prodi' => $kode_prodi,
-    //         'angkatan' => $angkatan,
-    //         'nama_mhs' => $nama_mhs,
-    //         'email' => $email
-    //     ];
+    public function simpan_masjid($nama_masjid, $alamat_masjid, $pengelola_masjid, $nama_pengelola, $nama_ranting, $nama_cabang, $nama_daerah, $nama_wilayah, $nama_takmir, $tlp_takmir, $koordinat_x, $koordinat_y, $id_nilai = 0)
+    {
+        $dt_simpan = [
+            'nama_masjid' => $nama_masjid,
+            'alamat_masjid' => $alamat_masjid,
+            'pengelola_masjid' => $pengelola_masjid,
+            'nama_pengelola' => $nama_pengelola,
+            'nama_ranting' => $nama_ranting,
+            'nama_cabang' => $nama_cabang,
+            'nama_daerah' => $nama_daerah,
+            'nama_wilayah' => $nama_wilayah,
+            'nama_takmir' => $nama_takmir,
+            'tlp_takmir' => $tlp_takmir,
+            'koordinat_x' => $koordinat_x,
+            'koordinat_y' => $koordinat_y,
+            'id_nilai' => $id_nilai
+        ];
 
-    //     $query = $this->insert($dt_simpan);
-    //     return $query;
-    // }
+        $this->transBegin();
+        $this->insert($dt_simpan);
+        if ($this->transStatus() === false) {
+            $this->transRollback();
+            $msg = false;
+        } else {
+            $this->transCommit();
+            $msg = true;
+        }
+        return $msg;
+    }
+
+    public function edit_masjid($id, $nama_masjid, $alamat_masjid, $pengelola_masjid, $nama_pengelola, $nama_ranting, $nama_cabang, $nama_daerah, $nama_wilayah, $nama_takmir, $tlp_takmir, $koordinat_x, $koordinat_y)
+    {
+        $dt_simpan = [
+            'nama_masjid' => $nama_masjid,
+            'alamat_masjid' => $alamat_masjid,
+            'pengelola_masjid' => $pengelola_masjid,
+            'nama_pengelola' => $nama_pengelola,
+            'nama_ranting' => $nama_ranting,
+            'nama_cabang' => $nama_cabang,
+            'nama_daerah' => $nama_daerah,
+            'nama_wilayah' => $nama_wilayah,
+            'nama_takmir' => $nama_takmir,
+            'tlp_takmir' => $tlp_takmir,
+            'koordinat_x' => $koordinat_x,
+            'koordinat_y' => $koordinat_y
+        ];
+
+        $this->transBegin();
+        $this->update($id, $dt_simpan);
+        if ($this->transStatus() === false) {
+            $this->transRollback();
+            $msg = false;
+        } else {
+            $this->transCommit();
+            $msg = true;
+        }
+        return $msg;
+    }
+
+    public function editNilaiMasjid($id, $idnilai)
+    {
+        $dt_simpan = [
+            'id_nilai' => $idnilai
+        ];
+
+        $this->transBegin();
+        $this->update($id, $dt_simpan);
+        if ($this->transStatus() === false) {
+            $this->transRollback();
+            $msg = false;
+        } else {
+            $this->transCommit();
+            $msg = true;
+        }
+        return $msg;
+    }
+}
+
+class NilaiMasjidModel extends Model
+{
+    protected $table            = 'masjid_nilai';
+    protected $primaryKey       = 'id';
+    protected $allowedFields    = ['id_masjid', 'jumlah_jamaah', 'merupakan_wakaf', 'plakat_muhammadiyah', 'sk_takmir', 'kajian_kemuhammadiyahan', 'kegiatan_tarjih', 'dakwah_digital', 'imb_masjid', 'id_penilai'];
+    protected $useTimestamps    = true;
+    protected $createdField     = 'nilai_createdat';
+    protected $updatedField     = 'nilai_updatedat';
+
+    public function simpan($id_masjid, $jumlah_jamaah, $merupakan_wakaf, $plakat_muhammadiyah, $sk_takmir, $kajian_kemuhammadiyahan, $kegiatan_tarjih, $dakwah_digital, $imb_masjid, $id_penilai = 1)
+    {
+        $dt_simpan = [
+            'id_masjid' => $id_masjid,
+            'jumlah_jamaah' => $jumlah_jamaah,
+            'merupakan_wakaf' => $merupakan_wakaf,
+            'plakat_muhammadiyah' => $plakat_muhammadiyah,
+            'sk_takmir' => $sk_takmir,
+            'kajian_kemuhammadiyahan' => $kajian_kemuhammadiyahan,
+            'kegiatan_tarjih' => $kegiatan_tarjih,
+            'dakwah_digital' => $dakwah_digital,
+            'imb_masjid' => $imb_masjid,
+            'id_penilai' => $id_penilai
+        ];
+
+        $this->transBegin();
+        $this->insert($dt_simpan);
+        if ($this->transStatus() === false) {
+            $this->transRollback();
+            $msg = false;
+        } else {
+            $this->transCommit();
+            $msg = $this->getInsertID();
+        }
+        return $msg;
+    }
 }

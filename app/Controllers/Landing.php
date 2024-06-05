@@ -15,7 +15,20 @@ class Landing extends BaseController
 
     public function index(): string
     {
-        return view('landingpage/index');
+        $data = [
+            'listMasjid' => $this->masjidModel->where('koordinat_x!=', null)->where('koordinat_y!=', null)
+                ->select('id, nama_masjid, alamat_masjid, koordinat_x, koordinat_y')->findAll()
+        ];
+        return view('landingpage/index', $data);
+    }
+
+    public function dinamis_review_maps()
+    {
+        $id = $this->request->getPost('idmasjid');
+        $masjid = $this->masjidModel->where('id', $id)->first();
+        $msg['koordinat_x'] = $masjid['koordinat_x'];
+        $msg['koordinat_y'] = $masjid['koordinat_y'];
+        echo json_encode($msg);
     }
 
     public function dinamis_load_peta()
@@ -43,7 +56,7 @@ class Landing extends BaseController
 
                 // menentukan warna icon
                 if ($v['merupakan_wakaf'] != "Ya" || $v['plakat_muhammadiyah'] != "Ya" || $v['sk_takmir'] != "Ya" || $v['kegiatan_tarjih'] != "Ya") {
-                    $icon = "abuIcon";
+                    $icon = "abuicon.png";
                 } else {
                     if ($jml_kriteria_lain <= 4) {
                         $icon = "redicon.png";
@@ -59,7 +72,7 @@ class Landing extends BaseController
                     'koordinat_y' => $v['koordinat_y'],
                     'tlp_takmir' => $v['tlp_takmir'],
                     'alamat_masjid' => $v['alamat_masjid'],
-                    'icon' => "yellowicon.png"
+                    'icon' => $icon
                 );
             }
 

@@ -7,15 +7,15 @@
     </div>
     <div class="container text-center">
         <div class="justify-content-center align-items-center">
-            <h1 data-aos="fade-up" class="mt-3"><span>السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ ٱللَّٰهِ وَبَرَكَاتُهُ</span></h1>
+            <h1 data-aos="fade-up"><span>السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ ٱللَّٰهِ وَبَرَكَاتُهُ</span></h1>
             <p data-aos="fade-up" data-aos-delay="100" class="mt-4">Kategori Masjid Muhammadiyah<br></p>
             <div data-aos="fade-up" data-aos-delay="200" class="row justify-content-center align-items-center">
                 <div class="col-lg-4 sm-8">
                     <select id="selectmasjid">
                         <option value=""></option>
-                        <option value="1">Option 1</option>
-                        <option value="2">Option 2</option>
-                        <option value="3">Option 3</option>
+                        <?php foreach ($listMasjid as $key => $m) { ?>
+                            <option value="<?= $m['id']; ?>"><?= $m['nama_masjid'] . " | " . $m['alamat_masjid']; ?></option>
+                        <?php } ?>
                     </select>
                 </div>
             </div>
@@ -23,7 +23,6 @@
             <!-- <img src="<?= base_url(); ?>/assetslanding/img/hero-services-img.webp" class="img-fluid hero-img" alt="" data-aos="zoom-out" data-aos-delay="300"> -->
         </div>
     </div>
-
 </section><!-- /Hero Section -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script>
@@ -33,12 +32,36 @@
         });
 
         loadPeta(null);
+
+        $('#selectmasjid').change(function() {
+            // loadPeta(this.value);
+            $.ajax({
+                url: "<?= site_url('landing/dinamis/dinamis_review_maps'); ?>",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    idmasjid: this.value
+                },
+                beforeSend: function() {},
+                complete: function() {},
+                success: function(response) {
+                    map.setView([response.koordinat_x, response.koordinat_y], 20, {
+                        animation: true
+                    });
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    alert(xhr.status + "\n" + xhr.responseText + "\n" + thrownError);
+                }
+            });
+            return false;
+
+        });
     });
 </script>
 
 <script>
     // Initialize the map and set its view to a specific location and zoom level
-    var map = L.map('map').setView([-7.5580860321414285, 110.77167166686505], 13);
+    var map = L.map('map').setView([-1.250799, 116.847905], 5);
 
     // Add a tile layer to the map (e.g., OpenStreetMap tiles)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -57,8 +80,6 @@
             beforeSend: function() {},
             complete: function() {},
             success: function(response) {
-
-                console.log(response.allmasjid);
                 $.each(response.allmasjid, function(index, masjid) {
                     var ImgIcon = L.icon({
                         iconUrl: '<?= base_url(); ?>/imageicon/' + masjid.icon,
@@ -86,24 +107,6 @@
         });
         return false;
     }
-</script>
-<script>
-    // Add a marker to the map
-    var marker = L.marker([-7.5580860321414285, 110.77167166686505], {
-        title: "Universitas Muhammadiyah Surakarta"
-    }).addTo(map);
-
-    marker.bindTooltip("Universitas Muhammadiyah Surakarta", {
-        permanent: true,
-        direction: 'right'
-    });
-    // Bind a popup to the marker
-    marker.bindPopup("<b>Universitas Muhammadiyah Surakarta</b></br>Universitas terbaik");
-
-    // // Add a marker to the map
-    // var marker2 = L.marker([-7.546038589597217, 110.77203030919318]).addTo(map);
-    // // Bind a popup to the marker
-    // marker2.bindPopup("<b>Edutorium UMS</b></br>Universitas terbaik");
 </script>
 
 
