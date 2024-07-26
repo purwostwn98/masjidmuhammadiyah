@@ -55,5 +55,6 @@ abstract class BaseController extends Controller
         // Preload any models, libraries, etc, here.
 
         $this->session = \Config\Services::session();
+        $this->dm = new \App\Models\WuryModel();
     }
 }

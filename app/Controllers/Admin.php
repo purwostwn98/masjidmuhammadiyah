@@ -18,8 +18,22 @@ class Admin extends BaseController
 
     public function dashboard(): string
     {
+        $pwm = $this->dm->Read("SELECT master_pwm.id,master_pwm.Nama, Count(*) AS Jml FROM master_masjid
+                                    INNER JOIN master_pwm ON master_masjid.id_pwm = master_pwm.id
+                                    GROUP BY master_pwm.id,master_pwm.Nama");
+        $dnpwm = array();
+        $dtpwm = array();
+        if($pwm){
+            foreach($pwm as $a){
+                $dnpwm[] = trim($a['Nama']);
+                $dtpwm[] = $a['Jml'];
+            }
+        }
+
         $data = [
-            "title" => ["admin", "Dashboard Admin"]
+            "title" => ["admin", "Dashboard Admin"],
+            "dpwm"  => json_encode($dtpwm),
+            "npwm"  => json_encode($dnpwm)
         ];
         return view('admin/dashboard', $data);
     }
