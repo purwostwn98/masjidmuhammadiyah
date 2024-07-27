@@ -29,11 +29,28 @@ class Admin extends BaseController
                 $dtpwm[] = $a['Jml'];
             }
         }
-
+        $msjd = $this->dm->Read("SELECT pengelola_masjid,COUNT(*) AS Jml FROM master_masjid GROUP BY pengelola_masjid");
+        $ttl = 0;
+        if($msjd){
+            foreach($msjd as $a){
+                if($a['pengelola_masjid']=='PCM'){$pcm = $a['Jml'];}
+                if($a['pengelola_masjid']=='PRM'){$prm = $a['Jml'];}
+                if($a['pengelola_masjid']=='PDM'){$pdm = $a['Jml'];}
+                if($a['pengelola_masjid']=='AUM'){$aum = $a['Jml'];}
+                if($a['pengelola_masjid']=='PWM'){$wm = $a['Jml'];}
+                $ttl = $ttl + $a['Jml'];
+            }
+        }
         $data = [
             "title" => ["admin", "Dashboard Admin"],
             "dpwm"  => json_encode($dtpwm),
-            "npwm"  => json_encode($dnpwm)
+            "npwm"  => json_encode($dnpwm),
+            "pcm"  => $pcm,
+            "prm"  => $prm,
+            "pdm"  => $pdm,
+            "pwm"  => $wm,
+            "aum"  => $aum,
+            "ttl"  => $ttl,
         ];
         return view('admin/dashboard', $data);
     }
