@@ -41,6 +41,28 @@ class Admin extends BaseController
                 $ttl = $ttl + $a['Jml'];
             }
         }
+        
+        $jmah = $this->dm->Read("SELECT nilai, COUNT(*) AS Jml FROM master_masjid
+                                    INNER JOIN nilai_masjid ON master_masjid.id = nilai_masjid.id_masjid
+                                    WHERE nilai_masjid.id_kategori = 8
+                                    GROUP BY nilai");
+        $mj = array();
+        $kmj = array();                            
+        if($jmah){
+            foreach($jmah as $a){
+                $mj[] = $a['Jml'];
+                if($a['nilai']== 1) $kmj[] = '< 10';
+                if($a['nilai']== 2) $kmj[] = '10-30';
+                if($a['nilai']== 3) $kmj[] = '30-50';
+                if($a['nilai']== 4) $kmj[] = '> 50';
+                if($a['nilai']== 5) $kmj[] = '50-100';
+                if($a['nilai']== 6) $kmj[] = '> 100';
+            }
+        }
+        
+        $int_numbers = array_map('intval', $mj);
+        $mj = '[' . implode(', ', $int_numbers) . ']';
+        
         $data = [
             "title" => ["admin", "Dashboard Admin"],
             "dpwm"  => json_encode($dtpwm),
@@ -51,6 +73,8 @@ class Admin extends BaseController
             "pwm"  => $wm,
             "aum"  => $aum,
             "ttl"  => $ttl,
+            "mj"  => $mj,
+            "kmj" =>json_encode($kmj)
         ];
         return view('admin/dashboard', $data);
     }

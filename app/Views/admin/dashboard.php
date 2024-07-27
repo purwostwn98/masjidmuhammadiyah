@@ -265,52 +265,17 @@
 
                     <script>
                         document.addEventListener("DOMContentLoaded", () => {
-                            echarts.init(document.querySelector("#jamaah")).setOption({
-                                tooltip: {
-                                    trigger: 'item'
-                                },
-                                legend: {
-                                    top: '5%',
-                                    left: 'center'
-                                },
-                                series: [{
-                                    name: 'Kategori',
-                                    type: 'pie',
-                                    radius: ['40%', '70%'],
-                                    avoidLabelOverlap: false,
-                                    label: {
-                                        show: false,
-                                        position: 'center'
-                                    },
-                                    emphasis: {
-                                        label: {
-                                            show: true,
-                                            fontSize: '18',
-                                            fontWeight: 'bold'
-                                        }
-                                    },
-                                    labelLine: {
-                                        show: false
-                                    },
-                                    data: [{
-                                            value: 1048,
-                                            name: 'Abu-Abu'
-                                        },
-                                        {
-                                            value: 735,
-                                            name: 'Hijau'
-                                        },
-                                        {
-                                            value: 580,
-                                            name: 'Kuning'
-                                        },
-                                        {
-                                            value: 484,
-                                            name: 'Merah'
-                                        }
-                                    ]
-                                }]
-                            });
+                        new ApexCharts(document.querySelector("#jamaah"), {
+                            series: <?=$mj?>,
+                            chart: {
+                            height: 350,
+                            type: 'pie',
+                            toolbar: {
+                                show: true
+                            }
+                            },
+                            labels: <?=$kmj?>
+                        }).render();
                         });
                     </script>
 
