@@ -3,14 +3,20 @@
 namespace App\Controllers;
 
 use App\Models\MasjidModel;
+use App\Models\KategoriMasjidModel;
+use App\Models\NilaiMasjidModel;
 
 class Landing extends BaseController
 {
     protected $masjidModel;
+    protected $kategoriMasjidModel;
+    protected $nilaiMasjidModel;
 
     public function __construct()
     {
         $this->masjidModel = new MasjidModel();
+        $this->kategoriMasjidModel = new KategoriMasjidModel();
+        $this->nilaiMasjidModel = new NilaiMasjidModel();
     }
 
     public function index(): string
@@ -38,24 +44,47 @@ class Landing extends BaseController
             $allmasjid = $this->masjidModel->where('koordinat_x!=', null)->where('koordinat_y!=', null)
                 ->join('masjid_nilai', 'master_masjid.id_nilai = masjid_nilai.id')
                 ->findAll();
+
+            $kategori_wajib = $this->kategoriMasjidModel->where("wajib", 1)->findAll();
+            $kategori_tambahan = $this->kategoriMasjidModel->where("wajib", 0)->findAll();
+            $nilai = $this->nilaiMasjidModel->findAll();
+            $arr_nilai = [];
+            foreach ($nilai as $key => $n) {
+                $i = md5($n["id_masjid"] . "-" . $n["id_kategori"]);
+                $arr_nilai[$i] = $n["nilai"];
+            }
+
+            $nilai = [];
             //array ini perlu ditambah jika tambah kolom kriteria
             $arr_masjid = [];
-            foreach ($allmasjid as $key => $v) {
-                // cek syarat wajid
-                $jml_kriteria_lain = 0;
-                if ($v['jumlah_jamaah'] != "Lebih dari 10, kurang dari 30" || $v['jumlah_jamaah'] != "Kurang dari 10") {
-                    $jml_kriteria_lain += 1;
-                }
-
-                $arr_kriteria_lainnya = ['kajian_kemuhammadiyahan', 'dakwah_digital', 'imb_masjid'];
-                foreach ($arr_kriteria_lainnya as $a => $k) {
-                    if ($v[$k] == "Ya") {
-                        $jml_kriteria_lain += 1;
+            foreach ($allmasjid as $key => $val) {
+                $wajib = true;
+                foreach ($kategori_wajib as $k => $kw) {
+                    $i = md5($val["id"] . "-" . $kw["id"]);
+                    if (empty($arr_nilai[$i]) || $arr_nilai[$i] == 0) {
+                        $wajib = false;
                     }
                 }
 
+                $jml_kriteria_lain = 0;
+                if ($wajib == true) {
+                    foreach ($kategori_tambahan as $k => $kt) {
+                        $i = md5($val["id"] . "-" . $kt["id"]);
+                        if ($kt["id"] == 8) {
+                            if (!empty($arr_nilai[$i]) && $arr_nilai[$i] >= 3) {
+                                $jml_kriteria_lain += 1;
+                            }
+                        } else {
+                            if (!empty($arr_nilai[$i]) && $arr_nilai[$i] != 0) {
+                                $jml_kriteria_lain += 1;
+                            }
+                        }
+                    }
+                }
+
+
                 // menentukan warna icon
-                if ($v['merupakan_wakaf'] != "Ya" || $v['plakat_muhammadiyah'] != "Ya" || $v['sk_takmir'] != "Ya" || $v['kegiatan_tarjih'] != "Ya") {
+                if ($wajib == false) {
                     $icon = "abuicon.png";
                 } else {
                     if ($jml_kriteria_lain <= 4) {
@@ -67,11 +96,11 @@ class Landing extends BaseController
                     }
                 }
                 $arr_masjid[] = array(
-                    'nama_masjid' => $v['nama_masjid'],
-                    'koordinat_x' => $v['koordinat_x'],
-                    'koordinat_y' => $v['koordinat_y'],
-                    'tlp_takmir' => $v['tlp_takmir'],
-                    'alamat_masjid' => $v['alamat_masjid'],
+                    'nama_masjid' => $val['nama_masjid'],
+                    'koordinat_x' => $val['koordinat_x'],
+                    'koordinat_y' => $val['koordinat_y'],
+                    'tlp_takmir' => $val['tlp_takmir'],
+                    'alamat_masjid' => $val['alamat_masjid'],
                     'icon' => $icon
                 );
             }

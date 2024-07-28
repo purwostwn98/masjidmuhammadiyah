@@ -271,7 +271,7 @@ class Admin extends BaseController
         return view('admin/kategori_masjid', $data);
     }
 
-    public function load_tabel_kategori()
+    public function load_tabel_kategori_old()
     {
         if ($this->request->isAJAX()) {
             $data = $this->masjidModel
@@ -319,6 +319,94 @@ class Admin extends BaseController
                 // $data_tampil[] = array('id' => $val['id'], 'nama' => $val['nama_masjid'], 'alamat' => $val['alamat_masjid'], 'pengelola' => $val['pengelola_masjid'] . " -> " . $val['nama_pengelola'], 'ranting' => $val['nama_ranting'], 'koordinat' => $koordinat_x . ", " . $koordinat_y, 'nomor' => $ind + 1);
                 $data_tampil[] = array(
                     'id' => $val['id'], 'nama' => $val['nama_masjid'], 'nomor' => $ind + 1,
+                    'alamat' => $val['alamat_masjid'],
+                    'pengelola' => $val['pengelola_masjid'] . " | " . $val['nama_pengelola'],
+                    'ranting' => $val['nama_ranting'] != null ? $val['nama_ranting'] : '',
+                    'koordinat' => $koordinat_x . ", " . $koordinat_y,
+                    'icon' => $icon
+                );
+            }
+            $msg['data'] = $data_tampil;
+            echo json_encode($msg);
+        } else {
+            echo ("Maaf perintah anda tidak dapat diproses");
+        }
+    }
+
+    public function load_tabel_kategori()
+    {
+        if ($this->request->isAJAX()) {
+            $data = $this->masjidModel
+                ->join('masjid_nilai', 'master_masjid.id_nilai = masjid_nilai.id', "left")
+                ->select('master_masjid.id, nama_masjid, alamat_masjid, pengelola_masjid, nama_pengelola, nama_ranting, koordinat_x, koordinat_y, id_nilai,
+                            id_masjid, jumlah_jamaah, merupakan_wakaf, plakat_muhammadiyah, sk_takmir, kajian_kemuhammadiyahan, kegiatan_tarjih, dakwah_digital, imb_masjid, id_penilai')
+                ->findAll();
+
+            $kategori_wajib = $this->kategoriMasjidModel->where("wajib", 1)->findAll();
+            $kategori_tambahan = $this->kategoriMasjidModel->where("wajib", 0)->findAll();
+            $nilai = $this->nilaiMasjidModel->findAll();
+            $arr_nilai = [];
+            foreach ($nilai as $key => $n) {
+                $i = md5($n["id_masjid"] . "-" . $n["id_kategori"]);
+                $arr_nilai[$i] = $n["nilai"];
+            }
+
+            $nilai = [];
+
+            $data_tampil = [];
+            foreach ($data as $ind => $val) {
+                $wajib = true;
+                foreach ($kategori_wajib as $k => $kw) {
+                    $i = md5($val["id"] . "-" . $kw["id"]);
+                    if (empty($arr_nilai[$i]) || $arr_nilai[$i] == 0) {
+                        $wajib = false;
+                    }
+                }
+
+                $jml_kriteria_lain = 0;
+                if ($wajib == true) {
+                    foreach ($kategori_tambahan as $k => $kt) {
+                        $i = md5($val["id"] . "-" . $kt["id"]);
+                        if ($kt["id"] == 8) {
+                            if (!empty($arr_nilai[$i]) && $arr_nilai[$i] >= 3) {
+                                $jml_kriteria_lain += 1;
+                            }
+                        } else {
+                            if (!empty($arr_nilai[$i]) && $arr_nilai[$i] != 0) {
+                                $jml_kriteria_lain += 1;
+                            }
+                        }
+                    }
+                }
+
+                // menentukan warna icon
+                if ($wajib == false) {
+                    $icon = "text-secondary";
+                } else {
+                    if ($jml_kriteria_lain <= 4) {
+                        $icon = "text-danger";
+                    } elseif ($jml_kriteria_lain <= 7) {
+                        $icon = "text-warning";
+                    } else {
+                        $icon = "text-success";
+                    }
+                }
+
+                if ($val['koordinat_x'] == null || $val['koordinat_x'] == "") {
+                    $koordinat_x = "-";
+                } else {
+                    $koordinat_x = $val['koordinat_x'];
+                }
+                if ($val['koordinat_y'] == null || $val['koordinat_y'] == "") {
+                    $koordinat_y = "-";
+                } else {
+                    $koordinat_y = $val['koordinat_y'];
+                }
+                // $data_tampil[] = array('id' => $val['id'], 'nama' => $val['nama_masjid'], 'alamat' => $val['alamat_masjid'], 'pengelola' => $val['pengelola_masjid'] . " -> " . $val['nama_pengelola'], 'ranting' => $val['nama_ranting'], 'koordinat' => $koordinat_x . ", " . $koordinat_y, 'nomor' => $ind + 1);
+                $data_tampil[] = array(
+                    'id' => $val['id'],
+                    'nama' => $val['nama_masjid'],
+                    'nomor' => $ind + 1,
                     'alamat' => $val['alamat_masjid'],
                     'pengelola' => $val['pengelola_masjid'] . " | " . $val['nama_pengelola'],
                     'ranting' => $val['nama_ranting'] != null ? $val['nama_ranting'] : '',
