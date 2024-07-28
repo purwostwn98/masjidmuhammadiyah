@@ -65,7 +65,12 @@
                         <div class="row mb-3">
                             <label for="inputnmWilayah" class="col-sm-4 col-form-label">Nama Wilayah</label>
                             <div class="col-sm-8">
-                                <input type="text" class="form-control" name="nama_wilayah" id="inputnmWilayah" required>
+                                <select id="inputnmWilayah" class="form-select" name="id_pwm" aria-label="Default selectpengelola" required>
+                                    <option value='' disabled selected></option>
+                                    <?php foreach ($pwm as $key => $p) { ?>
+                                        <option value='<?= $p["id"]; ?>'><?= $p['Nama']; ?></option>
+                                    <?php } ?>
+                                </select>
                             </div>
                         </div>
                         <div class="row mb-3">

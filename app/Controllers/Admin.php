@@ -143,7 +143,8 @@ class Admin extends BaseController
     {
         if ($this->request->isAJAX()) {
             $data = [
-                'wilayah' => "daftarwilayah"
+                'wilayah' => "daftarwilayah",
+                'pwm' => $this->pwmModel->findAll()
             ];
             $msg = [
                 'data' => view('admin/dinamis/modal_tambah_masjid', $data)
@@ -164,7 +165,7 @@ class Admin extends BaseController
         $nama_cabang = $this->request->getVar('nama_cabang');
         $nama_daerah = $this->request->getVar('nama_daerah');
         $id_pwm = $this->request->getVar('id_pwm');
-        $nama_wilayah = $this->request->getVar('nama_wilayah');
+        $nama_wilayah = null;
         $nama_takmir = $this->request->getVar('nama_takmir');
         $tlp_takmir = $this->request->getVar('tlp_takmir');
         $koordinat_x = $this->request->getVar('koordinat_x');

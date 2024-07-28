@@ -42,7 +42,6 @@ class Landing extends BaseController
         if ($this->request->isAJAX()) {
             $idmasjid = $this->request->getPost('idmasjid');
             $allmasjid = $this->masjidModel->where('koordinat_x!=', null)->where('koordinat_y!=', null)
-                ->join('masjid_nilai', 'master_masjid.id_nilai = masjid_nilai.id')
                 ->findAll();
 
             $kategori_wajib = $this->kategoriMasjidModel->where("wajib", 1)->findAll();
