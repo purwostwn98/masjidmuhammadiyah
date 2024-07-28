@@ -8,34 +8,12 @@ class MasjidModel extends Model
 {
     protected $table            = 'master_masjid';
     protected $primaryKey       = 'id';
-    protected $allowedFields    = ['nama_masjid', 'alamat_masjid', 'pengelola_masjid', 'nama_pengelola', 'nama_ranting', 'nama_cabang', 'nama_daerah', 'nama_wilayah', 'nama_takmir', 'tlp_takmir', 'koordinat_x', 'koordinat_y', 'id_nilai'];
+    protected $allowedFields    = ['nama_masjid', 'alamat_masjid', 'pengelola_masjid', 'nama_pengelola', 'nama_ranting', 'nama_cabang', 'nama_daerah', 'nama_wilayah', 'nama_takmir', 'tlp_takmir', 'koordinat_x', 'koordinat_y', 'id_nilai', 'id_pwm'];
     protected $useTimestamps    = true;
     protected $createdField     = 'msjd_createdat';
     protected $updatedField     = 'msjd_updatedat';
 
-    // public function get_semua_mahasiswa()
-    // {
-    //     $query = $this->join('mstr_lembaga as lmbg', 'mstr_mahasiswa.kode_prodi = lmbg.kode_prodi')->findAll();
-    //     return $query;
-    // }
-
-    // public function get_mahasiswa_angkatan($tahun)
-    // {
-    //     $query = $this->join('mstr_lembaga as lmbg', 'mstr_mahasiswa.kode_prodi = lmbg.kode_prodi')->where('angkatan', $tahun)->findAll();
-    //     return $query;
-    // }
-
-    // public function update_mhs($nim, $email, $nama_mhs)
-    // {
-    //     $dt_update = [
-    //         'nama_mhs' => $nama_mhs,
-    //         'email' => $email
-    //     ];
-    //     $query = $this->where('nim', $nim)->set($dt_update)->update();
-    //     return $query;
-    // }
-
-    public function simpan_masjid($nama_masjid, $alamat_masjid, $pengelola_masjid, $nama_pengelola, $nama_ranting, $nama_cabang, $nama_daerah, $nama_wilayah, $nama_takmir, $tlp_takmir, $koordinat_x, $koordinat_y, $id_nilai = 0)
+    public function simpan_masjid($nama_masjid, $alamat_masjid, $pengelola_masjid, $nama_pengelola, $nama_ranting, $nama_cabang, $nama_daerah, $nama_wilayah, $nama_takmir, $tlp_takmir, $koordinat_x, $koordinat_y, $id_nilai, $id_pwm)
     {
         $dt_simpan = [
             'nama_masjid' => $nama_masjid,
@@ -50,7 +28,8 @@ class MasjidModel extends Model
             'tlp_takmir' => $tlp_takmir,
             'koordinat_x' => $koordinat_x,
             'koordinat_y' => $koordinat_y,
-            'id_nilai' => $id_nilai
+            'id_nilai' => $id_nilai,
+            'id_pwm' => $id_pwm
         ];
 
         $this->transBegin();
@@ -65,7 +44,7 @@ class MasjidModel extends Model
         return $msg;
     }
 
-    public function edit_masjid($id, $nama_masjid, $alamat_masjid, $pengelola_masjid, $nama_pengelola, $nama_ranting, $nama_cabang, $nama_daerah, $nama_wilayah, $nama_takmir, $tlp_takmir, $koordinat_x, $koordinat_y)
+    public function edit_masjid($id, $nama_masjid, $alamat_masjid, $pengelola_masjid, $nama_pengelola, $nama_ranting, $nama_cabang, $nama_daerah, $nama_takmir, $tlp_takmir, $koordinat_x, $koordinat_y, $id_pwm)
     {
         $dt_simpan = [
             'nama_masjid' => $nama_masjid,
@@ -75,11 +54,11 @@ class MasjidModel extends Model
             'nama_ranting' => $nama_ranting,
             'nama_cabang' => $nama_cabang,
             'nama_daerah' => $nama_daerah,
-            'nama_wilayah' => $nama_wilayah,
             'nama_takmir' => $nama_takmir,
             'tlp_takmir' => $tlp_takmir,
             'koordinat_x' => $koordinat_x,
-            'koordinat_y' => $koordinat_y
+            'koordinat_y' => $koordinat_y,
+            'id_pwm' => $id_pwm
         ];
 
         $this->transBegin();
@@ -113,28 +92,19 @@ class MasjidModel extends Model
     }
 }
 
-class NilaiMasjidModel extends Model
-{
-    protected $table            = 'masjid_nilai';
-    protected $primaryKey       = 'id';
-    protected $allowedFields    = ['id_masjid', 'jumlah_jamaah', 'merupakan_wakaf', 'plakat_muhammadiyah', 'sk_takmir', 'kajian_kemuhammadiyahan', 'kegiatan_tarjih', 'dakwah_digital', 'imb_masjid', 'id_penilai'];
-    protected $useTimestamps    = true;
-    protected $createdField     = 'nilai_createdat';
-    protected $updatedField     = 'nilai_updatedat';
 
-    public function simpan($id_masjid, $jumlah_jamaah, $merupakan_wakaf, $plakat_muhammadiyah, $sk_takmir, $kajian_kemuhammadiyahan, $kegiatan_tarjih, $dakwah_digital, $imb_masjid, $id_penilai = 1)
+class pwmModel extends Model
+{
+    protected $table            = 'master_pwm';
+    protected $primaryKey       = 'id';
+    protected $allowedFields    = ['Nama', 'Ketua', 'Ket'];
+
+    public function simpan($Nama, $Ketua, $Ket)
     {
         $dt_simpan = [
-            'id_masjid' => $id_masjid,
-            'jumlah_jamaah' => $jumlah_jamaah,
-            'merupakan_wakaf' => $merupakan_wakaf,
-            'plakat_muhammadiyah' => $plakat_muhammadiyah,
-            'sk_takmir' => $sk_takmir,
-            'kajian_kemuhammadiyahan' => $kajian_kemuhammadiyahan,
-            'kegiatan_tarjih' => $kegiatan_tarjih,
-            'dakwah_digital' => $dakwah_digital,
-            'imb_masjid' => $imb_masjid,
-            'id_penilai' => $id_penilai
+            'Nama' => $Nama,
+            'Ketua' => $Ketua,
+            'Ket' => $Ket
         ];
 
         $this->transBegin();

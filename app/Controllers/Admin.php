@@ -2,18 +2,27 @@
 
 namespace App\Controllers;
 
+use App\Models\KategoriMasjidModel;
 use App\Models\MasjidModel;
 use App\Models\NilaiMasjidModel;
+use App\Models\pwmModel;
+use App\Models\WuryModel;
 
 class Admin extends BaseController
 {
     protected $masjidModel;
     protected $nilaiMasjidModel;
+    protected $dm;
+    protected $pwmModel;
+    protected $kategoriMasjidModel;
 
     public function __construct()
     {
         $this->masjidModel = new MasjidModel();
         $this->nilaiMasjidModel = new NilaiMasjidModel();
+        $this->dm = new WuryModel();
+        $this->pwmModel = new pwmModel();
+        $this->kategoriMasjidModel = new KategoriMasjidModel();
     }
 
     public function dashboard(): string
@@ -23,46 +32,56 @@ class Admin extends BaseController
                                     GROUP BY master_pwm.id,master_pwm.Nama");
         $dnpwm = array();
         $dtpwm = array();
-        if($pwm){
-            foreach($pwm as $a){
+        if ($pwm) {
+            foreach ($pwm as $a) {
                 $dnpwm[] = trim($a['Nama']);
                 $dtpwm[] = $a['Jml'];
             }
         }
         $msjd = $this->dm->Read("SELECT pengelola_masjid,COUNT(*) AS Jml FROM master_masjid GROUP BY pengelola_masjid");
         $ttl = 0;
-        if($msjd){
-            foreach($msjd as $a){
-                if($a['pengelola_masjid']=='PCM'){$pcm = $a['Jml'];}
-                if($a['pengelola_masjid']=='PRM'){$prm = $a['Jml'];}
-                if($a['pengelola_masjid']=='PDM'){$pdm = $a['Jml'];}
-                if($a['pengelola_masjid']=='AUM'){$aum = $a['Jml'];}
-                if($a['pengelola_masjid']=='PWM'){$wm = $a['Jml'];}
+        if ($msjd) {
+            foreach ($msjd as $a) {
+                if ($a['pengelola_masjid'] == 'PCM') {
+                    $pcm = $a['Jml'];
+                }
+                if ($a['pengelola_masjid'] == 'PRM') {
+                    $prm = $a['Jml'];
+                }
+                if ($a['pengelola_masjid'] == 'PDM') {
+                    $pdm = $a['Jml'];
+                }
+                if ($a['pengelola_masjid'] == 'AUM') {
+                    $aum = $a['Jml'];
+                }
+                if ($a['pengelola_masjid'] == 'PWM') {
+                    $wm = $a['Jml'];
+                }
                 $ttl = $ttl + $a['Jml'];
             }
         }
-        
+
         $jmah = $this->dm->Read("SELECT nilai, COUNT(*) AS Jml FROM master_masjid
                                     INNER JOIN nilai_masjid ON master_masjid.id = nilai_masjid.id_masjid
                                     WHERE nilai_masjid.id_kategori = 8
                                     GROUP BY nilai");
         $mj = array();
-        $kmj = array();                            
-        if($jmah){
-            foreach($jmah as $a){
+        $kmj = array();
+        if ($jmah) {
+            foreach ($jmah as $a) {
                 $mj[] = $a['Jml'];
-                if($a['nilai']== 1) $kmj[] = '< 10';
-                if($a['nilai']== 2) $kmj[] = '10-30';
-                if($a['nilai']== 3) $kmj[] = '30-50';
-                if($a['nilai']== 4) $kmj[] = '> 50';
-                if($a['nilai']== 5) $kmj[] = '50-100';
-                if($a['nilai']== 6) $kmj[] = '> 100';
+                if ($a['nilai'] == 1) $kmj[] = '< 10';
+                if ($a['nilai'] == 2) $kmj[] = '10-30';
+                if ($a['nilai'] == 3) $kmj[] = '30-50';
+                if ($a['nilai'] == 4) $kmj[] = '> 50';
+                if ($a['nilai'] == 5) $kmj[] = '50-100';
+                if ($a['nilai'] == 6) $kmj[] = '> 100';
             }
         }
-        
+
         $int_numbers = array_map('intval', $mj);
         $mj = '[' . implode(', ', $int_numbers) . ']';
-        
+
         $data = [
             "title" => ["admin", "Dashboard Admin"],
             "dpwm"  => json_encode($dtpwm),
@@ -74,7 +93,7 @@ class Admin extends BaseController
             "aum"  => $aum,
             "ttl"  => $ttl,
             "mj"  => $mj,
-            "kmj" =>json_encode($kmj)
+            "kmj" => json_encode($kmj)
         ];
         return view('admin/dashboard', $data);
     }
@@ -144,12 +163,13 @@ class Admin extends BaseController
         $nama_ranting = $this->request->getVar('nama_ranting');
         $nama_cabang = $this->request->getVar('nama_cabang');
         $nama_daerah = $this->request->getVar('nama_daerah');
+        $id_pwm = $this->request->getVar('id_pwm');
         $nama_wilayah = $this->request->getVar('nama_wilayah');
         $nama_takmir = $this->request->getVar('nama_takmir');
         $tlp_takmir = $this->request->getVar('tlp_takmir');
         $koordinat_x = $this->request->getVar('koordinat_x');
         $koordinat_y = $this->request->getVar('koordinat_y');
-        $query = $this->masjidModel->simpan_masjid($nama_masjid, $alamat_masjid, $pengelola_masjid, $nama_pengelola, $nama_ranting, $nama_cabang, $nama_daerah, $nama_wilayah, $nama_takmir, $tlp_takmir, $koordinat_x, $koordinat_y);
+        $query = $this->masjidModel->simpan_masjid($nama_masjid, $alamat_masjid, $pengelola_masjid, $nama_pengelola, $nama_ranting, $nama_cabang, $nama_daerah, $nama_wilayah, $nama_takmir, $tlp_takmir, $koordinat_x, $koordinat_y, $id_nilai = 0, $id_pwm);
         if ($query == true) {
             $this->session->setFlashdata('berhasil', "Masjid Baru berhasil disimpan");
         } else {
@@ -189,7 +209,8 @@ class Admin extends BaseController
         if ($this->request->isAJAX()) {
             $id = $this->request->getPost('idmasjid');
             $data = [
-                'masjid' => $this->masjidModel->where('id', $id)->first()
+                'masjid' => $this->masjidModel->where('id', $id)->first(),
+                'pwm' => $this->pwmModel->findAll()
             ];
             $msg = [
                 'data' => view('admin/dinamis/modal_edit_masjid', $data)
@@ -210,12 +231,12 @@ class Admin extends BaseController
         $nama_ranting = $this->request->getVar('nama_ranting');
         $nama_cabang = $this->request->getVar('nama_cabang');
         $nama_daerah = $this->request->getVar('nama_daerah');
-        $nama_wilayah = $this->request->getVar('nama_wilayah');
+        $id_pwm = $this->request->getVar('id_pwm');
         $nama_takmir = $this->request->getVar('nama_takmir');
         $tlp_takmir = $this->request->getVar('tlp_takmir');
         $koordinat_x = $this->request->getVar('koordinat_x');
         $koordinat_y = $this->request->getVar('koordinat_y');
-        $query = $this->masjidModel->edit_masjid($id, $nama_masjid, $alamat_masjid, $pengelola_masjid, $nama_pengelola, $nama_ranting, $nama_cabang, $nama_daerah, $nama_wilayah, $nama_takmir, $tlp_takmir, $koordinat_x, $koordinat_y);
+        $query = $this->masjidModel->edit_masjid($id, $nama_masjid, $alamat_masjid, $pengelola_masjid, $nama_pengelola, $nama_ranting, $nama_cabang, $nama_daerah, $nama_takmir, $tlp_takmir, $koordinat_x, $koordinat_y, $id_pwm);
         if ($query == true) {
             $this->session->setFlashdata('berhasil', "Masjid berhasil diupdate");
         } else {
@@ -228,8 +249,10 @@ class Admin extends BaseController
     {
         if ($this->request->isAJAX()) {
             $id = $this->request->getPost('idmasjid');
+            $masjid = $this->masjidModel->where('id', $id)->first();
             $data = [
-                'masjid' => $this->masjidModel->where('id', $id)->first()
+                'masjid' => $masjid,
+                'pwm' => $this->pwmModel->where("id", $masjid["id_pwm"])->first()
             ];
             $msg = [
                 'data' => view('admin/dinamis/modal_detail_masjid', $data)
@@ -310,6 +333,7 @@ class Admin extends BaseController
         }
     }
 
+    //ini diganti penilaian checklist
     public function v_riwayat_penilaian(): string
     {
         $idmasjid = $this->request->getVar('idmasjid');
@@ -392,5 +416,36 @@ class Admin extends BaseController
                 'status' => $status
             ];
         echo json_encode($data);
+    }
+
+
+    //view penilaian
+    public function v_penilaian()
+    {
+        $idmasjid = $this->request->getVar('idmasjid');
+        $masjid = $this->masjidModel->where('id', $idmasjid)->first();
+        $kategori = $this->kategoriMasjidModel->findAll();
+        $nilai = $this->nilaiMasjidModel->where("id_masjid", $idmasjid)->findAll();
+
+        $arr_nilai_tersimpan = [];
+        foreach ($nilai as $key => $n) {
+            $arr_nilai_tersimpan[md5($idmasjid . "-" . $n["id_kategori"])] = $n["nilai"];
+        }
+
+        // yang akan ditampilkan
+        $arr_nilai = [];
+        foreach ($kategori as $key => $k) {
+            $i = md5($idmasjid . "-" . $k["id"]);
+            $arr_nilai[$i] =  array_key_exists($i, $arr_nilai_tersimpan) ? intval($arr_nilai_tersimpan[$i]) : 0;
+        }
+
+        $data = [
+            "title" => ["admin", "Kategori Masjid"],
+            "kategori" => $kategori,
+            "masjid" => $masjid,
+            "arr_nilai" => $arr_nilai,
+            "jamaah" => $this->dm->getAll("jamaah_masjid", "id, ket", false)
+        ];
+        return view('admin/penilaian', $data);
     }
 }

@@ -60,7 +60,7 @@
                         <div class="row mb-3">
                             <label for="inputnmWilayah" class="col-sm-4 col-form-label">Nama Wilayah</label>
                             <div class="col-sm-8">
-                                <input type="text" class="form-control" name="nama_wilayah" id="inputnmWilayah" required readonly value="<?= $masjid['nama_wilayah']; ?>">
+                                <input type="text" class="form-control" name="nama_wilayah" id="inputnmWilayah" required readonly value="<?= $pwm['Nama']; ?>">
                             </div>
                         </div>
                         <div class="row mb-3">

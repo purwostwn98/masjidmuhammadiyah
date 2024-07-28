@@ -1,8 +1,8 @@
 <div class="modal fade" id="largeModalEdit">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-pencil-square"></i> Edit Data Masjid</h5>
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title text-white"><b><i class="bi bi-pencil-square"></i> Edit Data Masjid</b></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -66,7 +66,11 @@
                         <div class="row mb-3">
                             <label for="inputnmWilayah" class="col-sm-4 col-form-label">Nama Wilayah</label>
                             <div class="col-sm-8">
-                                <input type="text" class="form-control" name="nama_wilayah" id="inputnmWilayah" required value="<?= $masjid['nama_wilayah']; ?>">
+                                <select id="inputnmWilayah" class="form-select" name="id_pwm" aria-label="Default selectpengelola" required>
+                                    <?php foreach ($pwm as $key => $p) { ?>
+                                        <option <?= $masjid['id_pwm'] == $p["id"] ? 'selected' : ''; ?> value='<?= $p["id"]; ?>'><?= $p['Nama']; ?></option>
+                                    <?php } ?>
+                                </select>
                             </div>
                         </div>
                         <div class="row mb-3">
