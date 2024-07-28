@@ -448,4 +448,43 @@ class Admin extends BaseController
         ];
         return view('admin/penilaian', $data);
     }
+
+    public function do_save_nilai()
+    {
+        $idmasjid = $this->request->getPost("idmasjid");
+        $idkategori = $this->request->getPost("idkategori");
+        $value = $this->request->getPost("value");
+
+        $find_nilai = $this->nilaiMasjidModel->where(["id_masjid" => $idmasjid, "id_kategori" => $idkategori])->first();
+        $data = [
+            "id_masjid" => $idmasjid,
+            "id_kategori" => $idkategori,
+            "nilai" => $value,
+        ];
+
+        $this->nilaiMasjidModel->transBegin();
+        if (!empty($find_nilai)) {
+            $this->nilaiMasjidModel->update($find_nilai["id"], $data);
+        } else {
+            $this->nilaiMasjidModel->insert($data);
+        }
+        if ($this->nilaiMasjidModel->transStatus() === false) {
+            $this->nilaiMasjidModel->transRollback();
+            $data =
+                [
+                    'token' => csrf_hash(),
+                    'pesan' => "Gagal perbarui nilai",
+                    'status' => false
+                ];
+        } else {
+            $this->nilaiMasjidModel->transCommit();
+            $data =
+                [
+                    'token' => csrf_hash(),
+                    'pesan' => "Berhasil perbarui Nilai",
+                    'status' => true
+                ];
+        }
+        echo json_encode($data);
+    }
 }

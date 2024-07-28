@@ -63,20 +63,20 @@
                                             <td class="align-top"><?= $n['Kategori']; ?></td>
                                             <td class="align-top">
                                                 <?php if ($n["id"] == 8) { ?>
-                                                    <select class="" id="exampleFormControlSelect1">
+                                                    <select class="slc-<?= $n["id"]; ?>" id="exampleFormControlSelect1" onchange="Ganti('slc-<?= $n['id']; ?>', this.value, '<?= $masjid['id']; ?>', '<?= $n['id']; ?>')">
                                                         <option <?= $arr_nilai[$i] == 0 ? 'selected' : ''; ?> value="0" disabled>0</option>
                                                         <?php foreach ($jamaah as $jq => $j) { ?>
                                                             <option <?= $arr_nilai[$i] == $j["id"] ? 'selected' : ''; ?> value="<?= $j["id"]; ?>"><?= $j["ket"]; ?></option>
                                                         <?php } ?>
                                                     </select>
                                                 <?php } else { ?>
-                                                    <select class="" id="exampleFormControlSelect1">
+                                                    <select class="slc-<?= $n["id"]; ?>" id="exampleFormControlSelect1" onchange="Ganti('slc-<?= $n['id']; ?>', this.value, '<?= $masjid['id']; ?>', '<?= $n['id']; ?>')">
                                                         <option <?= $arr_nilai[$i] == 0 ? 'selected' : ''; ?> value="0">Tidak</option>
                                                         <option <?= $arr_nilai[$i] == 1 ? 'selected' : ''; ?> value="1">Ya</option>
                                                     </select>
                                                 <?php } ?>
                                             </td>
-                                            <td class="align-top">
+                                            <td class="align-top" id="indikator-<?= $n["id"]; ?>">
                                                 <?php if ($n["id"] == 8) { ?>
                                                     <?php if ($arr_nilai[$i] >= 3) { ?>
                                                         <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Good</span>
@@ -145,6 +145,58 @@
             return false;
         });
     });
+</script>
+
+<script>
+    function Ganti(nmclass, value, idmasjid, idkategori) {
+        var csrfName = 'csrf_test_name'; // CSRF Token name
+        var csrfHash = $("input[name='csrf_test_name']").val(); // CSRF hash
+        $.ajax({
+            url: "<?= site_url('admin/do_save_nilai'); ?>",
+            type: "POST",
+            dataType: "json",
+            data: {
+                idmasjid: idmasjid,
+                idkategori: idkategori,
+                value: value,
+                [csrfName]: csrfHash
+            },
+            beforeSend: function() {},
+            complete: function() {},
+            success: function(response) {
+                $("input[name='csrf_test_name']").val(response.token);
+                if (response.status == false) {
+                    iziToast.error({
+                        title: 'Ops!',
+                        message: response.pesan,
+                        position: 'topRight'
+                    });
+                } else {
+                    iziToast.success({
+                        title: 'Oke..!',
+                        message: response.pesan,
+                        position: 'topRight'
+                    });
+                    if (idkategori == 8) {
+                        if (value >= 3) {
+                            $("#indikator-" + idkategori).html('<span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Good</span>')
+                        } else {
+                            $("#indikator-" + idkategori).html('<span class="badge bg-secondary"><i class="bi bi-collection me-1"></i> Bad</span>')
+                        }
+                    } else {
+                        if (value == 1) {
+                            $("#indikator-" + idkategori).html('<span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Good</span>')
+                        } else {
+                            $("#indikator-" + idkategori).html('<span class="badge bg-secondary"><i class="bi bi-collection me-1"></i> Bad</span>')
+                        }
+                    }
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(xhr.status + "\n" + xhr.responseText + "\n" + thrownError);
+            }
+        });
+    }
 </script>
 
 <script>
