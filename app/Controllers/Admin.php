@@ -573,6 +573,54 @@ class Admin extends BaseController
                     'pesan' => "Berhasil perbarui Nilai",
                     'status' => true
                 ];
+
+            //update nilai di master masjid
+            $kategori_wajib = $this->kategoriMasjidModel->where("wajib", 1)->findAll();
+            $kategori_tambahan = $this->kategoriMasjidModel->where("wajib", 0)->findAll();
+            $nilai = $this->nilaiMasjidModel->where("id_masjid", $idmasjid)->findAll();
+            $arr_nilai = [];
+            foreach ($nilai as $key => $n) {
+                $i = md5($n["id_masjid"] . "-" . $n["id_kategori"]);
+                $arr_nilai[$i] = $n["nilai"];
+            }
+            $wajib = true;
+            foreach ($kategori_wajib as $k => $kw) {
+                $i = md5($idmasjid . "-" . $kw["id"]);
+                if (empty($arr_nilai[$i]) || $arr_nilai[$i] == 0) {
+                    $wajib = false;
+                }
+            }
+
+            $jml_kriteria_lain = 0;
+            if ($wajib == true) {
+                foreach ($kategori_tambahan as $k => $kt) {
+                    $i = md5($idmasjid . "-" . $kt["id"]);
+                    if ($kt["id"] == 8) {
+                        if (!empty($arr_nilai[$i]) && $arr_nilai[$i] >= 3) {
+                            $jml_kriteria_lain += 1;
+                        }
+                    } else {
+                        if (!empty($arr_nilai[$i]) && $arr_nilai[$i] != 0) {
+                            $jml_kriteria_lain += 1;
+                        }
+                    }
+                }
+            }
+
+            // menentukan warna icon
+            if ($wajib == false) {
+                $icon = 1;
+            } else {
+                if ($jml_kriteria_lain <= 4) {
+                    $icon = 2;
+                } elseif ($jml_kriteria_lain <= 7) {
+                    $icon = 3;
+                } else {
+                    $icon = 4;
+                }
+            }
+
+            $this->masjidModel->editNilaiMasjid($idmasjid, $icon);
         }
         echo json_encode($data);
     }
