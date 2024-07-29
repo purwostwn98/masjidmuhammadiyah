@@ -31,3 +31,4 @@ $routes->post('/admin/do-tambah-nilai', 'Admin::do_tambah_nilai');
 $routes->post('/admin/do_hapus_nilai', 'Admin::do_hapus_nilai');
 $routes->get('/admin/penilaian', 'Admin::v_penilaian');
 $routes->post('/admin/do_save_nilai', 'Admin::do_save_nilai');
+$routes->get('/admin/dinamis/update_all_nilai', 'Admin::update_all_nilai');
