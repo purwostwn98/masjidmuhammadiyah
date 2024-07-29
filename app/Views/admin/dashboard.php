@@ -186,6 +186,63 @@
                     </div>
                 </div><!-- End Reports -->
 
+                <!-- Reports -->
+                <div class="col-12">
+                    <div class="card">
+
+                        <div class="card-body">
+                            <h5 class="card-title">Jumalah Masjid di masing-masing PWM</h5>
+
+                            <!-- Line Chart -->
+                         <canvas id="barnilai" style="max-height: 400px;"></canvas>
+
+                            <script>
+                                document.addEventListener("DOMContentLoaded", () => {
+                                new Chart(document.querySelector('#barnilai'), {
+                                    type: 'bar',
+                                    data: {
+                                    labels: <?php echo $npwm;?>,
+                                    datasets: [{
+                                        label: 'Masjid',
+                                        data: <?php echo $dpwm; ?>,
+                                        backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(255, 159, 64, 0.2)',
+                                        'rgba(255, 205, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(201, 203, 207, 0.2)'
+                                        ],
+                                        borderColor: [
+                                        'rgb(255, 99, 132)',
+                                        'rgb(255, 159, 64)',
+                                        'rgb(255, 205, 86)',
+                                        'rgb(75, 192, 192)',
+                                        'rgb(54, 162, 235)',
+                                        'rgb(153, 102, 255)',
+                                        'rgb(201, 203, 207)'
+                                        ],
+                                        borderWidth: 1
+                                    }]
+                                    },
+                                    options: {
+                                    scales: {
+                                        y: {
+                                        beginAtZero: true
+                                        }
+                                    }
+                                    }
+                                });
+                                });
+                            </script>
+                            <!-- End Line Chart -->
+
+                        </div>
+
+                    </div>
+                </div><!-- End Reports -->
+
 
             </div>
         </div><!-- End Left side columns -->
@@ -204,53 +261,19 @@
 
                     <script>
                         document.addEventListener("DOMContentLoaded", () => {
-                            echarts.init(document.querySelector("#trafficChart")).setOption({
-                                tooltip: {
-                                    trigger: 'item'
+                            new ApexCharts(document.querySelector("#trafficChart"), {
+                                series: [<?=$abu?>, <?=$merah?>, <?=$kuning?>, <?=$hijau?>],
+                                chart: {
+                                height: 350,
+                                type: 'donut',
+                                toolbar: {
+                                    show: true
+                                }
                                 },
-                                legend: {
-                                    top: '5%',
-                                    left: 'center'
-                                },
-                                series: [{
-                                    name: 'Kategori',
-                                    type: 'pie',
-                                    radius: ['40%', '70%'],
-                                    avoidLabelOverlap: false,
-                                    label: {
-                                        show: false,
-                                        position: 'center'
-                                    },
-                                    emphasis: {
-                                        label: {
-                                            show: true,
-                                            fontSize: '18',
-                                            fontWeight: 'bold'
-                                        }
-                                    },
-                                    labelLine: {
-                                        show: false
-                                    },
-                                    data: [{
-                                            value: 1048,
-                                            name: 'Abu-Abu'
-                                        },
-                                        {
-                                            value: 735,
-                                            name: 'Hijau'
-                                        },
-                                        {
-                                            value: 580,
-                                            name: 'Kuning'
-                                        },
-                                        {
-                                            value: 484,
-                                            name: 'Merah'
-                                        }
-                                    ]
-                                }]
+                                labels: ['Abu-abu', 'Merah', 'Kuning', 'Hijau'],
+                                colors: ['#808080', '#FF0000', '#FFFF00', '#00e396'],
+                            }).render();
                             });
-                        });
                     </script>
 
                 </div>

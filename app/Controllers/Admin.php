@@ -81,7 +81,17 @@ class Admin extends BaseController
 
         $int_numbers = array_map('intval', $mj);
         $mj = '[' . implode(', ', $int_numbers) . ']';
-
+        $cat = $this->dm->Read("SELECT id_nilai, COUNT(*) AS Jml FROM master_masjid GROUP BY id_nilai");
+        // dd($cat); exit;
+        $abu = 0; $merah = 0; $kuning = 0; $hijau = 0;
+        if($cat){
+            foreach ($cat as $a) {
+                if($a['id_nilai']== 1) {$abu = $a['Jml'];}
+                if($a['id_nilai']== 2) {$merah = $a['Jml'];}
+                if($a['id_nilai']== 3) {$kuning = $a['Jml'];}
+                if($a['id_nilai']== 4) {$hijau = $a['Jml'];}
+            }
+        }
         $data = [
             "title" => ["admin", "Dashboard Admin"],
             "dpwm"  => json_encode($dtpwm),
@@ -93,7 +103,11 @@ class Admin extends BaseController
             "aum"  => $aum,
             "ttl"  => $ttl,
             "mj"  => $mj,
-            "kmj" => json_encode($kmj)
+            "kmj" => json_encode($kmj),
+            "abu" => $abu,
+            "merah"=> $merah,
+            "kuning"=> $kuning,
+            "hijau"=> $hijau
         ];
         return view('admin/dashboard', $data);
     }
