@@ -587,7 +587,118 @@ class Admin extends BaseController
                     'pesan' => "Berhasil perbarui Nilai",
                     'status' => true
                 ];
+
+            //update nilai di master masjid
+            $kategori_wajib = $this->kategoriMasjidModel->where("wajib", 1)->findAll();
+            $kategori_tambahan = $this->kategoriMasjidModel->where("wajib", 0)->findAll();
+            $nilai = $this->nilaiMasjidModel->where("id_masjid", $idmasjid)->findAll();
+            $arr_nilai = [];
+            foreach ($nilai as $key => $n) {
+                $i = md5($n["id_masjid"] . "-" . $n["id_kategori"]);
+                $arr_nilai[$i] = $n["nilai"];
+            }
+            $wajib = true;
+            foreach ($kategori_wajib as $k => $kw) {
+                $i = md5($idmasjid . "-" . $kw["id"]);
+                if (empty($arr_nilai[$i]) || $arr_nilai[$i] == 0) {
+                    $wajib = false;
+                }
+            }
+
+            $jml_kriteria_lain = 0;
+            if ($wajib == true) {
+                foreach ($kategori_tambahan as $k => $kt) {
+                    $i = md5($idmasjid . "-" . $kt["id"]);
+                    if ($kt["id"] == 8) {
+                        if (!empty($arr_nilai[$i]) && $arr_nilai[$i] >= 3) {
+                            $jml_kriteria_lain += 1;
+                        }
+                    } else {
+                        if (!empty($arr_nilai[$i]) && $arr_nilai[$i] != 0) {
+                            $jml_kriteria_lain += 1;
+                        }
+                    }
+                }
+            }
+
+            // menentukan warna icon
+            if ($wajib == false) {
+                $icon = 1;
+            } else {
+                if ($jml_kriteria_lain <= 4) {
+                    $icon = 2;
+                } elseif ($jml_kriteria_lain <= 7) {
+                    $icon = 3;
+                } else {
+                    $icon = 4;
+                }
+            }
+
+            $this->masjidModel->editNilaiMasjid($idmasjid, $icon);
         }
         echo json_encode($data);
+    }
+
+    public function update_all_nilai()
+    {
+        $data = $this->masjidModel
+            ->join('masjid_nilai', 'master_masjid.id_nilai = masjid_nilai.id', "left")
+            ->select('master_masjid.id, nama_masjid, alamat_masjid, pengelola_masjid, nama_pengelola, nama_ranting, koordinat_x, koordinat_y, id_nilai,
+                    id_masjid, jumlah_jamaah, merupakan_wakaf, plakat_muhammadiyah, sk_takmir, kajian_kemuhammadiyahan, kegiatan_tarjih, dakwah_digital, imb_masjid, id_penilai')
+            ->findAll();
+
+        $kategori_wajib = $this->kategoriMasjidModel->where("wajib", 1)->findAll();
+        $kategori_tambahan = $this->kategoriMasjidModel->where("wajib", 0)->findAll();
+        $nilai = $this->nilaiMasjidModel->findAll();
+        $arr_nilai = [];
+        foreach ($nilai as $key => $n) {
+            $i = md5($n["id_masjid"] . "-" . $n["id_kategori"]);
+            $arr_nilai[$i] = $n["nilai"];
+        }
+
+        $nilai = [];
+
+        $data_tampil = [];
+        foreach ($data as $ind => $val) {
+            $wajib = true;
+            foreach ($kategori_wajib as $k => $kw) {
+                $i = md5($val["id"] . "-" . $kw["id"]);
+                if (empty($arr_nilai[$i]) || $arr_nilai[$i] == 0) {
+                    $wajib = false;
+                }
+            }
+
+            $jml_kriteria_lain = 0;
+            if ($wajib == true) {
+                foreach ($kategori_tambahan as $k => $kt) {
+                    $i = md5($val["id"] . "-" . $kt["id"]);
+                    if ($kt["id"] == 8) {
+                        if (!empty($arr_nilai[$i]) && $arr_nilai[$i] >= 3) {
+                            $jml_kriteria_lain += 1;
+                        }
+                    } else {
+                        if (!empty($arr_nilai[$i]) && $arr_nilai[$i] != 0) {
+                            $jml_kriteria_lain += 1;
+                        }
+                    }
+                }
+            }
+
+            // menentukan warna icon
+            if ($wajib == false) {
+                $icon = 1;
+            } else {
+                if ($jml_kriteria_lain <= 4) {
+                    $icon = 2;
+                } elseif ($jml_kriteria_lain <= 7) {
+                    $icon = 3;
+                } else {
+                    $icon = 4;
+                }
+            }
+
+            $this->masjidModel->editNilaiMasjid($val["id"], $icon);
+        }
+        echo "Selesai update..";
     }
 }
